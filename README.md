@@ -226,27 +226,33 @@
       <button type="button" onclick="createNewThread('chemistry')">新增討論串</button>
       <div id="chemistry-threads" class="threads"></div>
     </div>
-    
     <div id="physics" class="discussion" style="display: none;">
       <h2>物理討論區</h2>
       <input type="text" placeholder="搜尋討論串" oninput="searchThreads('physics', this.value)" />
       <button type="button" onclick="createNewThread('physics')">新增討論串</button>
       <div id="physics-threads" class="threads"></div>
     </div>
-    
     <div id="geography" class="discussion" style="display: none;">
       <h2>地理討論區</h2>
       <input type="text" placeholder="搜尋討論串" oninput="searchThreads('geography', this.value)" />
       <button type="button" onclick="createNewThread('geography')">新增討論串</button>
       <div id="geography-threads" class="threads"></div>
     </div>
-    
     <div id="history" class="discussion" style="display: none;">
       <h2>歷史討論區</h2>
       <input type="text" placeholder="搜尋討論串" oninput="searchThreads('history', this.value)" />
       <button type="button" onclick="createNewThread('history')">新增討論串</button>
       <div id="history-threads" class="threads"></div>
     </div>
+    <!-- 圖片上傳表單 -->
+  <form id="uploadForm" enctype="multipart/form-data">
+    <label for="imageUpload">選擇圖片上傳：</label>
+    <input type="file" id="imageUpload" name="image" accept="image/*" required />
+    <button type="submit">上傳圖片</button>
+  </form>
+  
+  <!-- 用於顯示已上傳的圖片 -->
+  <div id="uploadedImages"></div>
   </div>
 
   <script>

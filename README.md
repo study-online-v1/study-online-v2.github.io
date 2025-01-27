@@ -176,9 +176,6 @@
       <a href="#" onclick="showDiscussion('geography')">地理</a>
       <a href="#" onclick="showDiscussion('history')">歷史</a>
     </div>
-    <div>
-      <button onclick="logout()">登出</button>
-    </div>
   </div>
 
   <!-- 登入頁面 -->

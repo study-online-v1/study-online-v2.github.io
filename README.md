@@ -459,6 +459,47 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(subject, JSON.stringify(storedComments));
   }
 }
+    //圖片上傳
+    document.getElementById("uploadForm").addEventListener("submit", async (event) => {
+      event.preventDefault(); // 防止表單默認提交行為
+
+      const fileInput = document.getElementById("imageUpload");
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("請選擇一張圖片！");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const response = await fetch("/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          displayUploadedImages(result.imageUrl); // 顯示圖片
+        } else {
+          alert("圖片上傳失敗！");
+        }
+      } catch (error) {
+        console.error("上傳錯誤：", error);
+        alert("發生錯誤，請稍後再試！");
+      }
+    });
+
+    function displayUploadedImages(imageUrl) {
+      const imageContainer = document.getElementById("uploadedImages");
+      const img = document.createElement("img");
+      img.src = imageUrl;
+      img.alt = "已上傳圖片";
+      img.style.width = "200px";
+      imageContainer.appendChild(img);
+    }
     function loadComments(subject) {
   const threadContainer = document.getElementById(`${subject}-threads`);
   threadContainer.innerHTML = ""; // 清空原有內容
@@ -479,6 +520,7 @@ document.addEventListener("DOMContentLoaded", () => {
     threadContainer.appendChild(commentElement);
   });
 }
+    
     //編輯討論串
     function editThread(subject, index) {
   const newTitle = prompt("請輸入新的討論串標題：");

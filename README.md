@@ -587,6 +587,15 @@ document.addEventListener("DOMContentLoaded", () => {
     replyContainer.appendChild(reply);
   }
 }
+    // 儲存留言到 localStorage
+    const subject = commentContainer.closest(".discussion").id; // 獲取目前討論區 ID
+    const storedComments = JSON.parse(localStorage.getItem(subject)) || [];
+    storedComments.push({
+      user: currentUser,
+      content: commentText,
+      replies: []
+    });
+    localStorage.setItem(subject, JSON.stringify(storedComments));
 
     function editComment(buttonElement) {
       const comment = buttonElement.parentElement.previousElementSibling;
@@ -595,6 +604,15 @@ document.addEventListener("DOMContentLoaded", () => {
         comment.innerHTML = `<strong>${currentUser}:</strong> ${newCommentText}`;
       }
     }
+    // 儲存留言到 localStorage
+    const subject = commentContainer.closest(".discussion").id; // 獲取目前討論區 ID
+    const storedComments = JSON.parse(localStorage.getItem(subject)) || [];
+    storedComments.push({
+      user: currentUser,
+      content: commentText,
+      replies: []
+    });
+    localStorage.setItem(subject, JSON.stringify(storedComments));
 
     function deleteComment(buttonElement) {
       const comment = buttonElement.parentElement.parentElement;

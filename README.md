@@ -370,64 +370,63 @@ loadThreads(subject);
 }
 
 function loadThreads(subject) {
-const threadContainer = document.getElementById(`${subject}-threads`);
-threadContainer.innerHTML = ""; // 清空現有 DOM
+  const threadContainer = document.getElementById(`${subject}-threads`);
+  threadContainer.innerHTML = ""; // 清空現有 DOM
 
-// 從 localStorage 加載討論串資料
-const storedThreads = JSON.parse(localStorage.getItem(`${subject}-threads`)) || [];
+  // 從 localStorage 加載討論串資料
+  const storedThreads = JSON.parse(localStorage.getItem(`${subject}-threads`)) || [];
 
-// 更新 UI
-storedThreads.forEach((thread, index) => {
-const threadElement = document.createElement("div");
-threadElement.classList.add("thread");
-threadElement.innerHTML = `
-     <h3>${thread.title}</h3>
-     <button onclick="editThread('${subject}', ${index})">編輯標題</button>
-     <button onclick="deleteThread('${subject}', ${index})">刪除討論串</button>
-     <textarea placeholder="新增留言"></textarea>
-     <button onclick="addComment(this, '${subject}', ${index})">提交留言</button>
-     <div class="comments"></div>
-   `;
+  // 更新 UI
+  storedThreads.forEach((thread, index) => {
+    const threadElement = document.createElement("div");
+    threadElement.classList.add("thread");
+    threadElement.innerHTML = `
+      <h3>${thread.title}</h3>
+      <button onclick="editThread('${subject}', ${index})">編輯標題</button>
+      <button onclick="deleteThread('${subject}', ${index})">刪除討論串</button>
+      <textarea placeholder="新增留言"></textarea>
+      <button onclick="addComment(this, '${subject}', ${index})">提交留言</button>
+      <div class="comments"></div>
+    `;
 
-// 加載留言與回覆
-const commentsContainer = threadElement.querySelector(".comments");
-thread.comments.forEach((comment, commentIndex) => {
-const commentElement = document.createElement("div");
-commentElement.classList.add("comment");
-commentElement.innerHTML = `
-       <p><strong>${comment.user}:</strong> ${comment.content}</p>
-       <div class="actions">
-         <button onclick="replyToComment(this, '${subject}', ${index}, ${commentIndex})">回覆</button>
-         <button onclick="editComment(this, '${subject}', ${index}, ${commentIndex})">編輯</button>
-         <button onclick="deleteComment(this, '${subject}', ${index}, ${commentIndex})">刪除</button>
-       </div>
-       <div class="replies"></div>
-     `;
+    // 加載留言與回覆
+    const commentsContainer = threadElement.querySelector(".comments");
+    thread.comments.forEach((comment, commentIndex) => {
+      const commentElement = document.createElement("div");
+      commentElement.classList.add("comment");
+      commentElement.innerHTML = `
+        <p><strong>${comment.user}:</strong> ${comment.content}</p>
+        <div class="actions">
+          <button onclick="replyToComment(this, '${subject}', ${index}, ${commentIndex})">回覆</button>
+          <button onclick="editComment(this, '${subject}', ${index}, ${commentIndex})">編輯</button>
+          <button onclick="deleteComment(this, '${subject}', ${index}, ${commentIndex})">刪除</button>
+        </div>
+        <div class="replies"></div>
+      `;
 
-// 加載回覆
-const repliesContainer = commentElement.querySelector(".replies");
-comment.replies?.forEach(reply => {
-const replyElement = document.createElement("div");
-replyElement.classList.add("comment");
-replyElement.innerHTML = `
-         <p><strong>${reply.user}:</strong> ${reply.content}</p>
-       `;
-repliesContainer.appendChild(replyElement);
-});
+      // 加載回覆
+      const repliesContainer = commentElement.querySelector(".replies");
+      comment.replies?.forEach(reply => {
+        const replyElement = document.createElement("div");
+        replyElement.classList.add("comment");
+        replyElement.innerHTML = `
+          <p><strong>${reply.user}:</strong> ${reply.content}</p>
+        `;
+        repliesContainer.appendChild(replyElement);
+      });
 
-commentsContainer.appendChild(commentElement);
-});
+      commentsContainer.appendChild(commentElement);
+    });
 
-threadContainer.appendChild(threadElement);
-});
+    threadContainer.appendChild(threadElement);
+  });
 }
 
 // 頁面載入時自動加載討論串
 document.addEventListener("DOMContentLoaded", () => {
-const subjects = ["chinese", "english", "math", "chemistry", "physics", "geography", "history"];
-subjects.forEach(subject => loadThreads(subject));
+  const subjects = ["chinese", "english", "math", "chemistry", "physics", "geography", "history"];
+  subjects.forEach(subject => loadThreads(subject));
 });
-
 
 function addComment(buttonElement) {
 const commentText = buttonElement.previousElementSibling.value;
@@ -547,58 +546,73 @@ const subjects = ["chinese", "english", "math", "chemistry", "physics", "geograp
 subjects.forEach((subject) => loadComments(subject));
 });
 
-function replyToComment(buttonElement, subject, threadIndex) {
-const replyText = prompt("請輸入回覆內容：");
-if (replyText) {
-const replyContainer = buttonElement.parentElement.nextElementSibling;
+function replyToComment(buttonElement, subject, threadIndex, commentIndex) {
+  const replyText = prompt("請輸入回覆內容：");
+  if (replyText) {
+    const replyContainer = buttonElement.parentElement.nextElementSibling;
 
-// 獲取留言的索引
-const commentIndex = Array.from(replyContainer.parentElement.parentElement.children).indexOf(replyContainer.parentElement);
+    // 從 localStorage 讀取討論串資料
+    const storedThreads = JSON.parse(localStorage.getItem(`${subject}-threads`)) || [];
+    const targetThread = storedThreads[threadIndex];
 
-// 從 localStorage 讀取討論串資料
-const storedThreads = JSON.parse(localStorage.getItem(`${subject}-threads`)) || [];
-const targetThread = storedThreads[threadIndex];
+    // 確保目標討論串的留言資料結構存在
+    if (!targetThread.comments[commentIndex].replies) {
+      targetThread.comments[commentIndex].replies = [];
+    }
 
-// 確保目標討論串的留言資料結構存在
-if (!targetThread.comments[commentIndex].replies) {
-targetThread.comments[commentIndex].replies = [];
+    // 新增回覆
+    targetThread.comments[commentIndex].replies.push({
+      user: currentUser,
+      content: replyText
+    });
+
+    // 更新 localStorage
+    localStorage.setItem(`${subject}-threads`, JSON.stringify(storedThreads));
+
+    // 在頁面上新增回覆
+    const reply = document.createElement("div");
+    reply.classList.add("comment");
+    reply.innerHTML = `
+      <p><strong>${currentUser}:</strong> ${replyText}</p>
+      <div class="actions">
+        <button onclick="replyToComment(this, '${subject}', ${threadIndex}, ${commentIndex})">回覆</button>
+        <button onclick="editComment(this, '${subject}', ${threadIndex}, ${commentIndex})">編輯</button>
+        <button onclick="deleteComment(this, '${subject}', ${threadIndex}, ${commentIndex})">刪除</button>
+      </div>
+    `;
+    replyContainer.appendChild(reply);
+  }
 }
 
-// 新增回覆
-targetThread.comments[commentIndex].replies.push({
-user: currentUser,
-content: replyText
-});
+function editComment(buttonElement, subject, threadIndex, commentIndex) {
+  const comment = buttonElement.parentElement.previousElementSibling;
+  const newCommentText = prompt("請編輯留言內容：", comment.innerText);
+  if (newCommentText) {
+    comment.innerHTML = `<strong>${currentUser}:</strong> ${newCommentText}`;
 
-// 更新 localStorage
-localStorage.setItem(`${subject}-threads`, JSON.stringify(storedThreads));
+    // 從 localStorage 讀取討論串資料
+    const storedThreads = JSON.parse(localStorage.getItem(`${subject}-threads`)) || [];
+    const targetThread = storedThreads[threadIndex];
+    targetThread.comments[commentIndex].content = newCommentText;
 
-// 在頁面上新增回覆
-const reply = document.createElement("div");
-reply.classList.add("comment");
-reply.innerHTML = `
-     <p><strong>${currentUser}:</strong> ${replyText}</p>
-     <div class="actions">
-       <button onclick="replyToComment(this, '${subject}', ${threadIndex})">回覆</button>
-       <button onclick="editComment(this)">編輯</button>
-       <button onclick="deleteComment(this)">刪除</button>
-     </div>
-   `;
-replyContainer.appendChild(reply);
-}
+    // 更新 localStorage
+    localStorage.setItem(`${subject}-threads`, JSON.stringify(storedThreads));
+  }
 }
 
-function editComment(buttonElement) {
-const comment = buttonElement.parentElement.previousElementSibling;
-const newCommentText = prompt("請編輯留言內容：", comment.innerText);
-if (newCommentText) {
-comment.innerHTML = `<strong>${currentUser}:</strong> ${newCommentText}`;
-}
-}
+function deleteComment(buttonElement, subject, threadIndex, commentIndex) {
+  if (confirm("確定要刪除此留言嗎？")) {
+    const comment = buttonElement.parentElement.parentElement;
+    comment.remove();
 
-function deleteComment(buttonElement) {
-const comment = buttonElement.parentElement.parentElement;
-comment.remove();
+    // 從 localStorage 讀取討論串資料
+    const storedThreads = JSON.parse(localStorage.getItem(`${subject}-threads`)) || [];
+    const targetThread = storedThreads[threadIndex];
+    targetThread.comments.splice(commentIndex, 1);
+
+    // 更新 localStorage
+    localStorage.setItem(`${subject}-threads`, JSON.stringify(storedThreads));
+  }
 }
 
 function searchThreads(subject, query) {
